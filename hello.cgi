@@ -3,30 +3,23 @@ require 'cgi'
 cgi = CGI.new
 puts cgi.header
 page = 'home'
-page = cgi['page'] unless cgi['page'].empty?
 
-def render(page, &content)
-  title = {
-    'about'  => 'about us',
-    'home'  => 'welcome'
-  }
-  puts"
-    <!doctype html>
-    <html>
-      <head>
-      <title> #{title[page]} </title>
-      </head>
-      <body>
-        #{yield}
-      </body>
-    </html>"
-
+pages = {'about' => 'About Us', 'home' => 'Welcome'}
+if pages.keys.include?(cgi['page'])
+  page = cgi['page']
 end
 
-render(page) do
-  if page =='about'
-    "We are coder."
-  else
-    "Welcome. Have a look around"
-  end
+title = pages[page]
+
+def render(title, &content)
+  puts "<!doctype html><html><head><title>#{title}</title></head>
+  <body>#{yield}</body></html>"
+end
+
+def load_content(page)
+  File.read "#{page}.html"
+end
+
+render(title) do
+  load_content page
 end
